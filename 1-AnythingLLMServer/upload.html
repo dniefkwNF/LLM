@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>AnythingLLM 文档上传</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 640px; margin: 32px auto; padding: 0 16px; }
+  h1 { font-size: 20px; }
+  #ws { color: #555; margin: 12px 0; }
+  .row { margin: 16px 0; }
+  button { padding: 6px 14px; }
+  pre { background: #f5f5f5; padding: 12px; border-radius: 4px; white-space: pre-wrap; word-break: break-all; }
+  .ok { color: #1a7f37; } .err { color: #cf222e; }
+</style>
+</head>
+<body>
+<h1>AnythingLLM 文档上传</h1>
+<div id="ws">目标工作区：加载中…</div>
+<div class="row">
+  <input type="file" id="file">
+  <button id="up" disabled>上传并嵌入</button>
+</div>
+<pre id="out">等待上传…</pre>
+
+<script>
+const BASE = "http://localhost:3001";
+const KEY = "2PFFJXQ-RH94CBR-HQ2TQZ8-10T0BM2";
+const headers = () => ({ "Authorization": "Bearer " + KEY });
+let slug = null;
+
+async function loadWorkspace() {
+  try {
+    const r = await fetch(BASE + "/api/v1/workspaces", { headers: headers() });
+    const j = await r.json();
+    const list = j.workspaces || [];
+    if (!list.length) { document.getElementById("ws").innerHTML = '<span class="err">未找到工作区</span>'; return; }
+    const first = list.reduce((a, b) => (b.id < a.id ? b : a));
+    slug = first.slug;
+    document.getElementById("ws").textContent = "目标工作区：" + first.name + "（" + slug + "）";
+    document.getElementById("up").disabled = false;
+  } catch (e) {
+    document.getElementById("ws").innerHTML = '<span class="err">加载工作区失败：' + e.message + "</span>";
+  }
+}
+
+document.getElementById("up").onclick = async () => {
+  const f = document.getElementById("file").files[0];
+  const out = document.getElementById("out");
+  if (!f) { out.innerHTML = '<span class="err">请先选择文件</span>'; return; }
+  if (!slug) { out.innerHTML = '<span class="err">工作区未就绪</span>'; return; }
+  out.textContent = "上传中…";
+  const fd = new FormData();
+  fd.append("file", f);
+  fd.append("meta", JSON.stringify({}));
+  try {
+    // 1. 上传文档到文档桶
+    const r = await fetch(BASE + "/api/v1/document/upload", { method: "POST", headers: headers(), body: fd });
+    const j = await r.json();
+    if (!j.success) {
+      out.innerHTML = '<span class="err">上传失败' + (j.error ? "：" + j.error : "") + "</span>\n\n" + JSON.stringify(j, null, 2);
+      return;
+    }
+    const adds = (j.documents || []).map(d => d.location).filter(Boolean);
+    out.innerHTML = '<span class="ok">上传成功（' + adds.length + ' 个），正在向量化嵌入…</span>\n\n' +
+      (j.documents || []).map(d => d.name + " → " + d.location).join("\n");
+
+    // 2. 嵌入到工作区（向量化）
+    const er = await fetch(BASE + "/api/v1/workspace/" + slug + "/update-embeddings", {
+      method: "POST",
+      headers: Object.assign(headers(), { "Content-Type": "application/json" }),
+      body: JSON.stringify({ adds: adds, deletes: [] })
+    });
+    const ej = await er.json();
+    const embedOk = er.ok && !ej.error;
+    out.innerHTML = '<span class="' + (embedOk ? "ok" : "err") + '">' +
+      (embedOk ? "上传 + 嵌入完成" : "嵌入失败" + (ej.error ? "：" + ej.error : "")) + "</span>\n\n" +
+      "--- 上传 ---\n" + (j.documents || []).map(d => d.name + " → " + d.location).join("\n") +
+      "\n\n--- 嵌入响应 ---\n" + JSON.stringify(ej, null, 2);
+  } catch (e) {
+    out.innerHTML = '<span class="err">请求失败：' + e.message + "</span>";
+  }
+};
+
+loadWorkspace();
+</script>
+</body>
+</html>
