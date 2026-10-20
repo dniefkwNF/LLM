@@ -9,9 +9,11 @@ import os
 import httpx
 from mcp.server.mcpserver import MCPServer
 
-# AnythingLLM connection config (override via env if needed).
+# AnythingLLM connection config (read from env; API key is required).
 ANYTHINGLLM_BASE_URL = os.environ.get("ANYTHINGLLM_BASE_URL", "http://localhost:3001")
-ANYTHINGLLM_API_KEY = os.environ.get("ANYTHINGLLM_API_KEY", "2PFFJXQ-RH94CBR-HQ2TQZ8-10T0BM2")
+ANYTHINGLLM_API_KEY = os.environ.get("ANYTHINGLLM_API_KEY")
+if not ANYTHINGLLM_API_KEY:
+    raise RuntimeError("环境变量 ANYTHINGLLM_API_KEY 未设置")
 
 mcp = MCPServer(name="anythingllm-mcp")
 

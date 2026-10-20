@@ -22,7 +22,7 @@ anythingllm-mcp/
 ## 2. 前置条件
 
 1. 本机已运行 AnythingLLM（默认 `http://localhost:3001`）。
-2. AnythingLLM 已生成 API Key（在 server.py 中默认填入：`2PFFJXQ-RH94CBR-HQ2TQZ8-10T0BM2`）。
+2. AnythingLLM 已生成 API Key，并通过环境变量 `ANYTHINGLLM_API_KEY` 提供（不再硬编码在代码中）。
 3. Python 3.10+，通过 `py` 启动器可调用；已安装 `mcp` 与 `httpx`：
    ```powershell
    py -m pip install -r requirements.txt
@@ -30,7 +30,7 @@ anythingllm-mcp/
 
 > 配置可通过环境变量覆盖（无需改代码）：
 > - `ANYTHINGLLM_BASE_URL`（默认 `http://localhost:3001`）
-> - `ANYTHINGLLM_API_KEY`（默认为内置 key）
+> - `ANYTHINGLLM_API_KEY`（**必填**，无默认值；未设置时服务启动即报错）
 
 ## 3. 启动 MCP 服务器
 
