@@ -1,0 +1,99 @@
+flowchart TD
+    A([程序启动 chat03.py]) --> B["读取 config.ini 配置<br/>configparser.ConfigParser<br/>api_key / base_url / model"]
+    B --> C["构造请求参数<br/>url = base_url + /chat/completions<br/>headers = Bearer api_key"]
+    C --> D["定义 tools 工具清单<br/>11 个 function 的 name / description / parameters"]
+    D --> E["初始化消息历史 messages = []"]
+
+    E --> F["主循环：接收用户输入<br/>input('我: ')"]
+    F --> G{输入为空？}
+    G -- 是 --> F
+    G -- "EOFError / KeyboardInterrupt" --> Z([退出程序])
+    G -- 否 --> H["追加 user 消息<br/>{'role':'user','content':...}"]
+
+    H --> I["内层循环：流式请求 LLM<br/>requests.post(stream=True)<br/>model + messages + tools"]
+
+    I --> J["解析 SSE 流<br/>resp.iter_lines()"]
+    J --> K{"行以 'data:' 开头？"}
+    K -- 否 --> J
+    K -- 是 --> L{"data == [DONE] ?"}
+    L -- 是 --> R
+    L -- 否 --> M["json 解析 choices[0].delta"]
+
+    M --> N{"delta.content 存在？"}
+    N -- 是 --> N1["打字机逐字输出 print<br/>累积 content 文本"]
+    N -- 否 --> O
+    N1 --> O{"delta.tool_calls 存在？"}
+    O -- 是 --> O1["按 index 累积工具槽位<br/>id / name / arguments 分片拼接"]
+    O -- 否 --> J
+    O1 --> J
+
+    R{"本轮 tool_calls 为空？"}
+    R -- 是 --> S["追加 assistant 消息<br/>{'role':'assistant','content':content}"]
+    S --> T["回到主循环等待下一次用户输入"]
+    T --> F
+
+    R -- 否 --> U["追加 assistant 消息<br/>含 tool_calls 数组"]
+    U --> V["工具分发：按 function.name<br/>if / elif 分支匹配"]
+
+    V --> W1["getDate → get_date()<br/>date /t 与 time /t"]
+    V --> W2["getCwd → get_cwd()<br/>os.getcwd()"]
+    V --> W3["listDir → list_dir(path)<br/>os.listdir 遍历"]
+    V --> W4["getFileType → get_file_type(path)<br/>os.path.splitext"]
+    V --> W5["readFile → read_file(path)<br/>open 文本读取"]
+    V --> W6["createFile → create_file(path, content)<br/>新建并写入"]
+    V --> W7["editFile → edit_file(path, content)<br/>整体覆盖写入"]
+    V --> W8["mkdir → make_dir(path)<br/>os.makedirs(exist_ok)"]
+    V --> W9["rmtree → remove_dir(path)<br/>shutil.rmtree"]
+    V --> W10["deleteFile → delete_file(path)<br/>os.remove"]
+    V --> W11["rename → rename_path(src, dst)<br/>os.rename"]
+    V --> W12["其他 → unknown tool"]
+
+    W1 --> X["消息历史回填<br/>追加 {'role':'tool','tool_call_id':id,'content':result}"]
+    W2 --> X
+    W3 --> X
+    W4 --> X
+    W5 --> X
+    W6 --> X
+    W7 --> X
+    W8 --> X
+    W9 --> X
+    W10 --> X
+    W11 --> X
+    W12 --> X
+
+    X --> Y["携带更新后的 messages<br/>再次发起流式请求"]
+    Y --> I
+
+    subgraph SG1["配置与请求准备"]
+        B
+        C
+        D
+        E
+    end
+
+    subgraph SG2["流式请求与 SSE 解析"]
+        I
+        J
+        K
+        L
+        M
+        N
+        N1
+        O
+        O1
+    end
+
+    subgraph SG3["11 个工具函数"]
+        W1
+        W2
+        W3
+        W4
+        W5
+        W6
+        W7
+        W8
+        W9
+        W10
+        W11
+        W12
+    end
