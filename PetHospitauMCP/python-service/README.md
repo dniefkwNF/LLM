@@ -22,7 +22,7 @@ it over HTTP for every `list_pets` invocation.
 ## Installation
 
 ```bash
-cd pet_hospital_mcp
+cd PetHospitauMCP/python-service
 pip install -e ".[dev]"
 ```
 
@@ -50,14 +50,15 @@ All settings are environment variables (or a `.env` file):
 ### 1. Start the Go Pet Hospital REST API
 
 ```bash
-cd my-mcp-projects/pet-hospital-mcp-teaching
+# 仓库根目录下
+cd PetHospitauMCP
 go run .          # listens on :8080
 ```
 
 ### 2. Start the MCP service
 
 ```bash
-cd pet_hospital_mcp
+cd PetHospitauMCP/python-service
 python -m pet_hospital_mcp       # or: pet-hospital-mcp (console script)
 ```
 

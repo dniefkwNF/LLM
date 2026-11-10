@@ -41,7 +41,7 @@ from __future__ import annotations
 import json as _json
 import math
 import time
-from typing import Any, Optional, Union
+from typing import Any, Literal, Optional, Union
 
 from mcp.server import MCPServer
 from mcp_types import CallToolResult, TextContent

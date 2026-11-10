@@ -24,3 +24,23 @@ env/
 # OS
 .DS_Store
 Thumbs.db
+
+# Local secrets (only *.example files should be committed)
+config.ini
+.env
+
+# Agent runtime data
+agent/YAgent/.agents/sessions/
+agent/YAgent/.agents/logs/
+agent/YAgent/.agents/context/
+
+# Local binaries / data / packaging outputs
+*.exe
+*.db
+*.pth
+whatsnew313.*
+.unifypy/
+.unifypy_rollback/
+main/
+installer/
+

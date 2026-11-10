@@ -1,0 +1,91 @@
+/* 主布局：左侧聊天 + 右侧侧边栏 */
+#main {
+    height: 1fr;
+}
+
+#chat_area {
+    width: 3fr;
+    height: 1fr;
+    border-right: solid $surface;
+}
+
+#sidebar {
+    width: 1fr;
+    height: 1fr;
+    padding: 0 1;
+}
+
+/* 聊天区 —— flex 垂直堆叠，上下固定，中间滚动 */
+#chat {
+    height: 1fr;
+    padding: 1 2;
+    min-height: 3;       /* 至少能看到几条消息 */
+}
+
+.ctx-status {
+    height: 1;
+    min-height: 1;        /* 强制占一行，不被挤没 */
+    padding: 0 2;
+    border-top: solid $surface-darken-2;
+}
+
+.completion {
+    height: auto;
+    max-height: 6;
+    padding: 0 2;
+    border-top: solid $surface;
+    min-height: 0;        /* 没内容时不占位 */
+}
+
+/* 输入框始终在底部，不被滚动区挤掉 */
+#prompt {
+    dock: bottom;
+    height: 3;
+}
+
+/* 消息块 */
+.block {
+    margin-top: 1;
+}
+
+.hint {
+    color: $text-muted;
+}
+
+.user {
+    color: $accent;
+}
+
+.assistant {
+    color: $text;
+}
+
+.tool {
+    color: $warning;
+}
+
+.error {
+    color: $error;
+}
+
+/* 侧边栏 */
+.side-title {
+    color: $text-muted;
+    text-style: bold;
+    margin-top: 1;
+}
+
+#mcp_panel, #sessions_panel {
+    height: 1fr;
+    border: round $surface;
+    padding: 0 1;
+    background: $surface-darken-1;
+}
+
+#mcp_panel {
+    height: 40%;
+}
+
+#sessions_panel {
+    height: 35%;
+}

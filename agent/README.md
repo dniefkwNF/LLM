@@ -8,6 +8,7 @@
 | --- | --- | --- |
 | [Practice01](./Practice01) | 基础流式对话 | 读取 `config.ini`，调用 LLM 流式接口，打字机式逐字输出，携带全部历史保持多轮记忆 |
 | [Practice02](./Practice02) | function call 工具调用 | 在基础对话之上，声明并执行 11 个本机文件系统工具 |
+| [YAgent](./YAgent) | 分层重构的终端 Agent | Textual TUI、19 个内置工具、Skill 创建/按需加载、MCP 接入、会话持久化、上下文压缩与归档检索 |
 
 ## Practice01
 
@@ -29,9 +30,21 @@
 
 详见 [Practice02/README.md](./Practice02/README.md)。
 
+## YAgent
+
+在 Practice02 基础上按 `ui → core ← infra` 分层的完整 Agent：
+
+- 19 个内置工具（文件系统、联网搜索、网页读取、技能、归档检索）；
+- Skill 创建与按需加载（`createSkill` / `loadSkill`，索引只注入 name + description）；
+- MCP 客户端（stdio / Streamable HTTP），多 server 并存、失败互不影响；
+- 会话保存/恢复、上下文压缩归档、`recallContext` 检索、运行日志；
+- 文件工具限定在 `YAGENT_FS_ROOT` 内，越界与危险操作会被拒绝。
+
+详见 [YAgent/README.md](./YAgent/README.md)。
+
 ## 运行方式
 
-进入对应目录，准备 `config.ini` 后运行：
+进入对应目录，复制 `config.ini.example` 为 `config.ini` 并填写密钥（`config.ini` 已被 `.gitignore` 忽略）：
 
 ```ini
 [llm]
@@ -46,4 +59,7 @@ cd Practice01 && python chat.py
 
 # 工具调用
 cd Practice02 && python chat03.py
+
+# 分层 Agent（TUI）
+cd YAgent && pip install -r requirements.txt && py main.py
 ```

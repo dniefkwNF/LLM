@@ -4,8 +4,8 @@
 
 - **MCP 协议版本**：`2026-07-28`（由 `mcp` Python SDK 2.0.0 实现，`LATEST_PROTOCOL_VERSION = "2026-07-28"`）
 - **传输协议**：Streamable HTTP（非 stdio）
-- **依赖**：`mcp>=2.0.0`、`httpx>=0.27`（已通过 `py` 启动器安装在系统 Python 3.13 中）
-- **唯一工具**：`ask_first_workspace(question)` — 取 AnythingLLM 中 id 最小的工作区，向其发起 `query` 模式提问，返回 AI 文本回答 + 来源数
+- **依赖**：`mcp>=2.0.0`、`httpx>=0.27`
+- **工具**：工作区管理（`list_workspaces` / `create_workspace`）、文档上传与向量化（`upload_document`）、基于工作区内容的问答（`ask_workspace` / `ask_first_workspace`）
 
 ---
 
@@ -13,7 +13,7 @@
 
 ```
 anythingllm-mcp/
-├── server.py          # MCP 服务 + 单个工具实现
+├── server.py           # MCP 服务 + 5 个工具实现
 ├── requirements.txt    # mcp, httpx
 ├── .mcp.json           # 项目级 MCP 配置（指向本地 HTTP 端点）
 └── README.md
@@ -38,13 +38,13 @@ anythingllm-mcp/
 
 ```powershell
 # 前台运行（便于看日志，Ctrl+C 停止）
-cd C:\Users\Administrator\Documents\trae_projects\projects\anythingllm-mcp\anythingllm-mcp
+cd E:\LLM\1-AnythingLLMMCP
 py server.py
 ```
 
 ```powershell
 # 后台运行（推荐生产用）
-Start-Process -FilePath "py" -ArgumentList "server.py" -WorkingDirectory "C:\Users\Administrator\Documents\trae_projects\projects\anythingllm-mcp\anythingllm-mcp" -WindowStyle Hidden
+Start-Process -FilePath "py" -ArgumentList "server.py" -WorkingDirectory "E:\LLM\1-AnythingLLMMCP" -WindowStyle Hidden
 ```
 
 启动后服务监听：`http://127.0.0.1:8000/mcp`
@@ -96,6 +96,12 @@ Get-CimInstance Win32_Process -Filter "Name='python.exe'" |
 
 | 工具 | 参数 | 行为 |
 | --- | --- | --- |
-| `ask_first_workspace` | `question: str` | 调 `GET /api/v1/workspaces` 取 id 最小工作区的 slug；调 `POST /api/v1/workspace/{slug}/chat`（`mode=query`）发起提问；返回 `[工作区: <name>]\n<AI回答>\n\n来源(N): <title1>, ...` |
+| `list_workspaces` | 无 | `GET /api/v1/workspaces`，返回 id / name / slug / 文档数表格 |
+| `create_workspace` | `name: str` | `POST /api/v1/workspace/new`，创建并返回 slug |
+| `upload_document` | `file_path: str`、`workspace_slug: str = ""` | 上传本地文件（`POST /api/v1/document/upload`），再用 `update-embeddings` 加入工作区向量库 |
+| `ask_workspace` | `question: str`、`workspace_slug: str = ""` | 向指定工作区发起 `mode=query` 提问，返回 `[工作区: <name>]\n<AI回答>\n\n来源(N): ...` |
+| `ask_first_workspace` | `question: str` | 兼容旧版：等价于 `ask_workspace(question)`（自动选 id 最小工作区） |
 
 `mode=query` 表示：仅当向量库中存在相关来源时才使用 LLM，不召回聊天历史 —— 适合「针对工作区内容提问」的场景。如需让 LLM 用通用知识作答，可改 `server.py` 中 `"mode": "query"` 为 `"chat"` 或 `"automatic"`。
+
+所有工具在 AnythingLLM 未启动或 Key 无效时都会返回以 `Error:` 开头的可读文本，而不是抛出异常。

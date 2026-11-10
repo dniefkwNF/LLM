@@ -34,7 +34,7 @@
 
 ```text
 pet-hospital-windows-amd64/
-├── pethospital.exe     ← 可执行文件（已内嵌网页）
+├── pet-hospital.exe     ← 可执行文件（已内嵌网页）
 ├── README.md           ← 本说明
 └── data/
     └── pet.db          ← 测试数据库（含模拟数据，可直接打开体验）
@@ -42,7 +42,7 @@ pet-hospital-windows-amd64/
 
 ```bash
 cd pet-hospital-windows-amd64
-pethospital.exe                       # Windows（双击或命令行）
+pet-hospital.exe                       # Windows（双击或命令行）
 ```
 
 然后浏览器打开 <http://127.0.0.1:8080/> 即可看到界面。
@@ -66,10 +66,10 @@ go run . -no-color                        # 关闭彩色输出
 ### 交叉编译到其他平台
 
 ```bash
-GOOS=windows GOARCH=amd64 go build -o dist/pethospital.exe .   # Windows 64 位
-GOOS=linux   GOARCH=amd64 go build -o dist/pethospital-linux . # Linux 64 位
-GOOS=darwin  GOARCH=arm64 go build -o dist/pethospital .       # macOS Apple Silicon
-GOOS=darwin  GOARCH=amd64 go build -o dist/pethospital-intel . # macOS Intel
+GOOS=windows GOARCH=amd64 go build -o dist/pet-hospital.exe .   # Windows 64 位
+GOOS=linux   GOARCH=amd64 go build -o dist/pet-hospital-linux . # Linux 64 位
+GOOS=darwin  GOARCH=arm64 go build -o dist/pet-hospital .       # macOS Apple Silicon
+GOOS=darwin  GOARCH=amd64 go build -o dist/pet-hospital-intel . # macOS Intel
 ```
 
 启动后终端会显示：
@@ -123,7 +123,7 @@ GOOS=darwin  GOARCH=amd64 go build -o dist/pethospital-intel . # macOS Intel
 
 ```text
 任意目录/
-├── pethospital      ← 可执行文件（已内嵌网页）
+├── pet-hospital      ← 可执行文件（已内嵌网页）
 └── data/
     └── pet.db       ← 数据库文件（全部数据）
 ```
@@ -131,8 +131,8 @@ GOOS=darwin  GOARCH=amd64 go build -o dist/pethospital-intel . # macOS Intel
 然后在该目录下运行：
 
 ```bash
-./pethospital                 # macOS / Linux
-pethospital.exe               # Windows（双击或命令行）
+./pet-hospital                 # macOS / Linux
+pet-hospital.exe               # Windows（双击或命令行）
 ```
 
 **目标电脑无需安装 Go、数据库或任何依赖。** 注意：
@@ -310,7 +310,7 @@ curl -s -X DELETE http://127.0.0.1:8080/api/v1/pets/PET-000001
 
 ```bash
 make help          # 查看全部命令
-make build         # 编译到 dist/pethospital
+make build         # 编译到 dist/pet-hospital
 make dist          # 构建 + 准备测试数据库 + 拷贝说明文档
 make test-db       # 仅重建测试数据库（dist/data/pet.db，1000 条模拟数据）
 make clean         # 清理构建产物

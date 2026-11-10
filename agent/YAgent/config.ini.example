@@ -1,0 +1,19 @@
+[llm]
+# 复制为 config.ini 后填写；config.ini 已被 .gitignore 忽略
+# 也可用环境变量 YAGENT_API_KEY 覆盖
+api_key = sk-REPLACE_WITH_YOUR_KEY
+base_url = https://api.deepseek.com/v1
+model = deepseek-v4-flash
+
+[search]
+# auto = 百度优先、失败自动降级 Bing；可选 baidu / bing
+provider = auto
+api_key = bce-v3/REPLACE_WITH_YOUR_KEY
+base_url = https://qianfan.baidubce.com/v2/ai_search/web_search
+
+[agent]
+agents_file = AGENT.md
+agents_enabled = true
+agents_max_chars = 4000
+# 留空表示使用启动目录；可指定为绝对路径限制文件工具只能访问该目录
+fs_root =
